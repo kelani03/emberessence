@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - Ember Essence</title>
+    <style>
+        /* Invoice Page Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F5F5F5; /* Off White */
+            color: #333333; /* Dark Gray */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .invoice-container {
+            background-color: #FFFFFF; /* White */
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #1F3B2C; /* Dark Green */
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #invoice-details {
+            padding: 15px 0;
+            border-top: 2px solid #E5E5E5; /* Border Gray */
+            border-bottom: 2px solid #E5E5E5;
+            margin-bottom: 20px;
+        }
+
+        #invoice-details div {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .summary-row {
+            font-weight: bold;
+        }
+
+        .summary-row p {
+            color: #333333; /* Dark Gray */
+        }
+
+        .invoice-total {
+            text-align: right;
+            font-size: 24px;
+            color: #1F3B2C; /* Dark Green */
+            font-weight: bold;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-print, .btn-back, .btn-dashboard {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn-print {
+            background-color: #2D5A41; /* Success Green */
+            color: #FFFFFF;
+        }
+
+        .btn-back {
+            background-color: #B94D4D; /* Error Red */
+            color: #FFFFFF;
+        }
+
+        .btn-dashboard {
+            background-color: #2A3C2B; /* Dark Green (Same as Dashboard Header) */
+            color: #FFFFFF;
+        }
+
+        .btn-print:hover {
+            background-color: #1F3B2C; /* Dark Green */
+        }
+
+        .btn-back:hover {
+            background-color: #992929; /* Darker Error Red */
+        }
+
+        .btn-dashboard:hover {
+            background-color: #324833; /* Darker shade for hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <h2>Invoice</h2>
+        <div id="invoice-details">
+            <!-- Order details will be populated here -->
+        </div>
+        <div class="invoice-total">
+            Total: <span id="total-amount">$0.00</span>
+        </div>
+        <div class="button-group">
+            <button class="btn-print" onclick="window.print()">Print Invoice</button>
+            <button class="btn-back" onclick="window.location.href='checkout.html'">Back to Checkout</button>
+            <!-- New button to go to the dashboard -->
+            <button class="btn-dashboard" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        function loadInvoice() {
+            const order = JSON.parse(localStorage.getItem('OrderSummary'));
+
+            if (!order || !order.cart || order.cart.length === 0) {
+                document.getElementById('invoice-details').innerHTML = '<p>No order data found.</p>';
+                return;
+            }
+
+            const detailsHtml = order.cart.map(item => `
+                <div>
+                    <span>${item.product}</span>
+                    <span>Qty: ${item.quantity}</span>
+                    <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('invoice-details').innerHTML = detailsHtml;
+            document.getElementById('total-amount').textContent = `$${order.total.toFixed(2)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadInvoice);
+    </script>
+</body>
+</html>

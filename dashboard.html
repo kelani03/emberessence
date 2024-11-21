@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f7f3f3;
+            padding: 32px;
+        }
+        .container {
+            width: 1000px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+        }
+        .header {
+            background: #2a3c2b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            border-radius: 10px;
+            margin-bottom: 32px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        .card p {
+            font-size: 16px;
+            color: #666;
+        }
+        .search-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .search-container input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            width: 300px;
+        }
+        .search-container button {
+            background-color: #2a3c2b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #324833;
+        }
+        .results {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        .results p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>User Statistics Dashboard</h2>
+        </div>
+
+        <!-- Invoice Search Section -->
+        <div class="card">
+            <h3>Invoice Search</h3>
+            <div class="search-container">
+                <input type="text" id="trn-search" placeholder="Enter TRN to search" />
+                <button onclick="searchInvoices()">Search</button>
+                <div id="search-results"></div>
+            </div>
+            <div id="show-all-invoices"></div>
+        </div>
+
+        <!-- Section for displaying the user's invoices -->
+        <div class="card">
+            <h3>Your Invoices</h3>
+            <button onclick="getUserInvoices()">View My Invoices</button>
+            <div class="results" id="user-invoices"></div>
+        </div>
+
+        <!-- Section for displaying user frequency (Gender & Age) -->
+        <div class="card">
+            <h3>User Frequency</h3>
+            <button onclick="ShowUserFrequency()">Show User Frequency</button>
+            <div class="results" id="user-frequency"></div>
+        </div>
+
+        <!-- Section for displaying all invoices -->
+        <div class="card">
+            <h3>Show All Invoices</h3>
+            <button onclick="ShowInvoices()">Show All Invoices</button>
+            <div class="results" id="show-all-invoices"></div>
+        </div>
+
+    </div>
+    <script> // Ensure the user is logged in and retrieve their data
+        window.onload = function () {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser || !currentUser.trn) {
+                alert("You are not logged in. Redirecting to login page...");
+                window.location.href = "index.html";
+            }
+        };
+        
+        // Function to search invoices by TRN
+        function searchInvoices() {
+            const trn = document.getElementById('trn-search').value;
+            const allInvoices = JSON.parse(localStorage.getItem('AllInvoices')) || [];
+        
+            console.log("Searching invoices for TRN:", trn);  // Log TRN for debugging
+        
+            const results = allInvoices.filter(invoice => invoice.trn === trn);
+        
+            if (results.length > 0) {
+                let output = '<h4>Search Results:</h4>';
+                results.forEach(invoice => {
+                    output += `<p>TRN: ${invoice.trn} | Total: $${invoice.total}</p>`;
+                });
+                document.getElementById('search-results').innerHTML = output;
+            } else {
+                document.getElementById('search-results').innerHTML = '<p>No invoices found for the given TRN.</p>';
+            }
+        }
+        
+        // Function to display invoices for the current user
+        function getUserInvoices() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            const allInvoices = JSON.parse(localStorage.getItem('AllInvoices')) || [];
+        
+            console.log("Current User TRN: ", currentUser.trn);  // Log current user TRN for debugging
+        
+            const userInvoices = allInvoices.filter(invoice => invoice.trn === currentUser.trn);
+        
+            let output = '';
+            if (userInvoices.length > 0) {
+                output = '<h4>Your Invoices:</h4>';
+                userInvoices.forEach(invoice => {
+                    output += `<p>TRN: ${invoice.trn} | Total: $${invoice.total}</p>`;
+                });
+            } else {
+                output = '<p>No invoices found for your TRN.</p>';
+            }
+            document.getElementById('user-invoices').innerHTML = output;
+        }
+        
+        // Function to show user frequency by gender and age group
+        function ShowUserFrequency() {
+            const registerData = JSON.parse(localStorage.getItem('RegistrationData')) || [];
+        
+            if (registerData.length === 0) {
+                document.getElementById('user-frequency').innerHTML = '<p>No user data available.</p>';
+                return;
+            }
+        
+            const genderCount = { Male: 0, Female: 0, Other: 0 };
+            const ageGroups = { '18-25': 0, '26-35': 0, '36-50': 0, '50+': 0 };
+        
+            registerData.forEach(user => {
+                // Increment gender count
+                genderCount[user.gender] = (genderCount[user.gender] || 0) + 1;
+        
+                // Calculate age based on DOB
+                const birthYear = new Date(user.dob).getFullYear();
+                const currentYear = new Date().getFullYear();
+                const age = currentYear - birthYear;
+                
+                // Determine the user's age group
+                if (age >= 18 && age <= 25) {
+                    ageGroups['18-25']++;
+                } else if (age >= 26 && age <= 35) {
+                    ageGroups['26-35']++;
+                } else if (age >= 36 && age <= 50) {
+                    ageGroups['36-50']++;
+                } else if (age > 50) {
+                    ageGroups['50+']++;
+                }
+            });
+        
+            // Display user frequency data
+            const output = `
+                <h4>Gender Count:</h4>
+                <ul>
+                    <li>Male: ${genderCount.Male}</li>
+                    <li>Female: ${genderCount.Female}</li>
+                    <li>Other: ${genderCount.Other}</li>
+                </ul>
+                <h4>Age Groups:</h4>
+                <ul>
+                    <li>18-25: ${ageGroups['18-25']}</li>
+                    <li>26-35: ${ageGroups['26-35']}</li>
+                    <li>36-50: ${ageGroups['36-50']}</li>
+                    <li>50+: ${ageGroups['50+']}</li>
+                </ul>`;
+            document.getElementById('user-frequency').innerHTML = output;
+        }
+        
+        // Function to display all invoices
+        function ShowInvoices() {
+            const allInvoices = JSON.parse(localStorage.getItem('AllInvoices')) || [];
+        
+            if (allInvoices.length > 0) {
+                let output = '<h4>All Invoices:</h4>';
+                allInvoices.forEach(invoice => {
+                    output += `<p>TRN: ${invoice.trn} | Total: $${invoice.total}</p>`;
+                });
+                document.getElementById('show-all-invoices').innerHTML = output;
+            } else {
+                document.getElementById('show-all-invoices').innerHTML = '<p>No invoices found.</p>';
+            }
+        }
+        
+    </script>
+</body>
+</html>

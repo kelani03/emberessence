@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMBER ESSENCE - Products</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: whitesmoke;
+        }
+
+        header {
+            background-color: #324833;
+            color: #C6ABA9;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        header img {
+            height: 170px;
+            position: absolute;
+            left: 10px;
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        nav {
+            background-color: #324833;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        nav a {
+            color: #C6ABA9;
+            text-decoration: none;
+            font-size: 20px;
+            margin: 0 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .product-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .product-card {
+            background-color: #C6ABA9;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .product-card h3 {
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .product-card p {
+            color: #2A3C2B;
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: #324833;
+            color: #C6ABA9;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo2.png" alt="logo">
+        <h1>EMBER ESSENCE</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="product.html">Products</a>
+        <a href="carts.html">Cart</a>
+    </nav>
+
+    <div class="product-container" id="product-list"></div>
+
+    <script>
+        const products = [
+            { name: "Vanilla Coconut Bliss", price: 24.99, description: "Tropical paradise with Vanilla Coconut.", image: "product1.jpg" },
+            { name: "Eucalyptus Mint", price: 17.00, description: "Refreshing blend of Eucalyptus and Mint.", image: "product2.jpg" },
+            { name: "Lavender", price: 14.99, description: "Calming Lavender scent.", image: "product3.jpg" },
+            { name: "Ocean Breeze", price: 30.00, description: "Crisp aroma of Ocean Breeze.", image: "product4.jpg" },
+            { name: "Rosey Mist", price: 34.00, description: "Elegant Rose Petal Romance.", image: "product5.jpg" },
+            { name: "Sage", price: 26.00, description: "Earthy and calming Sage scent.", image: "product6.jpg" },
+            { name: "Citrus", price: 20.00, description: "Zesty Citrus Candle.", image: "product7.jpg" },
+            { name: "Sakura", price: 23.00, description: "Cherry blossom Sakura Candle.", image: "product8.jpg" },
+            { name: "Jasmine", price: 19.00, description: "Blissful Jasmine Candle.", image: "product9.jpg" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        const productContainer = document.getElementById('product-list');
+        products.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.classList.add('product-card');
+            productCard.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p>${product.description}</p>
+                <p>Cost: $${product.price}</p>
+                <input type="number" min="1" id="qty-${product.name}" placeholder="Quantity">
+                <button onclick="addToCart('${product.name}', ${product.price}, 'qty-${product.name}')">Add to Cart</button>
+            `;
+            productContainer.appendChild(productCard);
+        });
+
+        function addToCart(productName, price, qtyId) {
+            const quantity = parseInt(document.getElementById(qtyId).value) || 1;
+            const itemIndex = cart.findIndex(item => item.product === productName);
+
+            if (itemIndex !== -1) {
+                cart[itemIndex].quantity += quantity;
+            } else {
+                cart.push({ product: productName, price: price, quantity: quantity });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${quantity} x ${productName} added to your cart.`);
+        }
+    </script>
+</body>
+</html>
+

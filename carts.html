@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f0e2; /* Light Cream */
+            color: #333; /* Dark Text */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .cart-wrapper {
+            display: flex;
+            background-color: #f3f0e2;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .cart-left {
+            flex: 1;
+            padding: 40px;
+            background-color: #274e13; /* Dark Green */
+            color: #f3f0e2; /* Light Cream */
+            text-align: center;
+        }
+
+        .cart-left h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .cart-left button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #c19169; /* Soft Brown */
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cart-left button:hover {
+            background-color: #8b5a2b; /* Darker Brown */
+        }
+
+        .cart-right {
+            flex: 2;
+            padding: 40px;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table th, .cart-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .cart-table th {
+            background-color: #8b5a2b; /* Darker Brown */
+            color: #f3f0e2; /* Light Cream */
+        }
+
+        .cart-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-clear {
+            background-color: #c19169; /* Soft Brown */
+            color: #fff;
+        }
+
+        .btn-checkout {
+            background-color: #274e13; /* Dark Green */
+            color: #f3f0e2; /* Light Cream */
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .total-price {
+            text-align: right;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cart-wrapper">
+            <div class="cart-left">
+                <h1>Your Cart</h1>
+                <button id="close">Close Cart</button>
+            </div>
+            <div class="cart-right">
+                <table class="cart-table" id="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Sub-Total</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items"></tbody>
+                </table>
+
+                <div class="cart-summary">
+                    <button class="btn btn-clear" id="clear-all">Clear All</button>
+                    <button class="btn btn-checkout" id="checkout">Check Out</button>
+                </div>
+
+                <div class="total-price">
+                    <h2>Total: $<span id="total-price">0.00</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Code
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const totalPriceElem = document.getElementById('total-price');
+            cartItems.innerHTML = '';
+            let totalPrice = 0;
+
+            cart.forEach((item, index) => {
+                const subTotal = item.price * item.quantity;
+                const discount = subTotal > 100 ? subTotal * 0.1 : 0;
+                const tax = (subTotal - discount) * 0.15;
+                const total = subTotal - discount + tax;
+                totalPrice += total;
+
+                const row = `
+                    <tr>
+                        <td>${item.product}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td><input type="number" min="1" value="${item.quantity}" data-index="${index}" class="quantity-input"></td>
+                        <td>$${subTotal.toFixed(2)}</td>
+                        <td>$${discount.toFixed(2)}</td>
+                        <td>$${tax.toFixed(2)}</td>
+                        <td>$${total.toFixed(2)}</td>
+                        <td><button class="remove-btn" data-index="${index}">Remove</button></td>
+                    </tr>
+                `;
+                cartItems.innerHTML += row;
+            });
+
+            totalPriceElem.textContent = totalPrice.toFixed(2);
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Handle Remove Item
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('remove-btn')) {
+                const index = event.target.dataset.index;
+                cart.splice(index, 1);
+                updateCart();
+            }
+        });
+
+        // Handle Quantity Change
+        document.addEventListener('input', (event) => {
+            if (event.target.classList.contains('quantity-input')) {
+                const index = event.target.dataset.index;
+                cart[index].quantity = parseInt(event.target.value) || 1;
+                updateCart();
+            }
+        });
+
+        // Clear All Items
+        document.getElementById('clear-all').addEventListener('click', () => {
+            cart = [];
+            updateCart();
+        });
+
+        // Proceed to Checkout
+        document.getElementById('checkout').addEventListener('click', () => {
+            alert("Proceeding to checkout...");
+            window.location.href = 'checkout.html';
+        });
+
+        // Close Cart
+        document.getElementById('close').addEventListener('click', () => {
+            window.close();
+        });
+
+        // Initialize Cart
+        updateCart();
+    </script>
+</body>
+</html>

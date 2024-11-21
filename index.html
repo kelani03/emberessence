@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration & Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f7f3f3;
+            padding: 32px;
+        }
+        .brand-name {
+            position: fixed;
+            top: -40px;
+            left: -48px;
+        }
+        /* Container for both login and registration forms */
+        .container {
+            position: relative;
+            width: 1000px;
+            min-height: 600px;
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        /* Welcome panel styling */
+        .welcome-panel {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: #2a3c2b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 48px;
+            transition: transform 0.6s ease-in-out;
+            z-index: 99;
+            left: 0;
+        }
+        /* Shifted class to hide the welcome panel and show the form containers */
+        .welcome-panel.shifted {
+            transform: translateX(100%);
+        }
+        .welcome-panel h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .welcome-panel p {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        /* Form container styling for both login and registration */
+        .form-container {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            padding: 32px;
+            background: #FFFFFF;
+            transition: transform 0.6s ease-in-out;
+            overflow-y: auto;
+        }
+        /* Active classes to shift between login and registration */
+        .registration-container {
+            left: 0;
+            transform: translateX(100%);
+            z-index: 1;
+        }
+        .registration-container.active {
+            transform: translateX(50%);
+        }
+        .login-container {
+            left: 0;
+            transform: translateX(0);
+            z-index: 1;
+        }
+        .login-container.active {
+            transform: translateX(-50%);
+        }
+        /* Styling for form scrollbar */
+        .form-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .form-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .form-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .form-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 28px;
+        }
+         /* Styling for input fields */
+        .input-group {
+            display: flex;
+            gap: 16px;
+        }
+        .input-group div {
+            flex: 1;
+        }
+        label {
+            font-size: 14px;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-bottom: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #2a3c2b;
+            outline: none;
+        }
+         /* Gender selection style */
+        .gender-selection {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            color: #4A4A4A;
+        }
+         /* Button styles for registration, login, and cancel actions */
+        .form-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            margin-top: 16px;
+        }
+        .form-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            color: white;
+        }
+        .register-btn {
+            background-color: #2a3c2b;
+        }
+        .register-btn:hover {
+            background-color: #324833;
+            transform: translateY(-2px);
+        }
+        .cancel-btn {
+            background-color: #b79492;
+        }
+        .cancel-btn:hover {
+            background-color: #C6ABA9;
+            transform: translateY(-2px);
+        }
+        button.outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button.outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Styling for password reset */
+        .reset-link {
+            text-align: right;
+            display: block;
+            margin-top: -8px;
+            margin-bottom: 16px;
+            color: #2a3c2b;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .reset-link:hover {
+            text-decoration: underline;
+        }
+        /* Styling for mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: row;
+                width: auto;
+                min-height: auto;
+            }
+            .welcome-panel {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 32px;
+            }
+            .form-container {
+                position: relative;
+                width: 100%;
+                transform: none;
+                left: 0;
+            }
+            .welcome-panel.shifted {
+                transform: none;
+            }
+            .registration-container.active,
+            .login-container.active {
+                transform: none;
+            }
+            .registration-container,
+            .login-container {
+                display: none;
+            }
+            .registration-container.active,
+            .login-container.active {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo Section -->
+    <div class="brand-name">
+        <img src="logo.png" alt="logo" width="200x">
+    </div>
+
+    <div class="container">
+         <!-- Welcome Panel for Login/Registration -->
+        <div class="welcome-panel">
+            <h2>Welcome Back!</h2>
+            <p>To keep connected with us please login with your personal info.</p>
+            <button class="outline" onclick="toggleForms()">Log In</button>
+        </div>
+
+        <!-- Registration Form Container -->
+        <div class="form-container registration-container">
+            <h2>SIGN UP</h2>
+            <form id="registrationForm">
+                <div class="input-group">
+                    <div>
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div>
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required>
+
+                <div class="gender-selection">
+                    <label>Gender:</label>
+                    <label><input type="radio" name="gender" value="male" required> Male</label>
+                    <label><input type="radio" name="gender" value="female" required> Female</label>
+                    <label><input type="radio" name="gender" value="other" required> Other</label>
+                </div>
+
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" required>
+
+                <div class="input-group">
+                    <div>
+                        <label for="trn">Tax Registration Number (TRN)</label>
+                        <input type="text" id="trn" pattern="\d{3}-\d{3}-\d{3}" title="Format: 000-000-000" required>
+                        <span id="trnError"></span>
+                    </div>
+                    <div>
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" required>
+                    </div>
+                </div>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" minlength="8" required>
+
+                <div class="form-buttons">
+                    <button type="reset" class="cancel-btn">Cancel</button>
+                    <button type="button" class="register-btn" onclick="registerUser(event)">Register</button>
+                </div>
+            </form>
+        </div>
+
+         <!-- Login Form Container -->
+        <div class="form-container login-container active">
+            <h2>LOG IN</h2>
+            <form id="loginForm">
+                <label for="loginTRN">Tax Registration Number (TRN)</label>
+                <input type="text" id="loginTRN" required>
+                <span id="trnError"></span>
+
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+                
+
+                <a href="#" class="reset-link" onclick="resetPassword()">Reset Password</a>
+
+                <div class="form-buttons">
+                    <button type="reset" class="cancel-btn">Cancel</button>
+                    <button type="button" class="register-btn" onclick="loginUser(event)">Log in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script> 
+    // Group Member: Kelsey Clarke
+    // Project: Ember Essence
+    // Description: This code handles user registration and login functionalities, including form validation, localStorage management, and redirection to the product or error pages.
+        
+    function toggleForms() {
+        // Toggles between the login and registration forms
+        document.querySelector('.welcome-panel').classList.toggle('shifted');
+        document.querySelector('.registration-container').classList.toggle('active');
+        document.querySelector('.login-container').classList.toggle('active');
+
+        const welcomePanel = document.querySelector('.welcome-panel');
+        const button = welcomePanel.querySelector('button');
+        const heading = welcomePanel.querySelector('h2');
+        const paragraph = welcomePanel.querySelector('p');
+
+        if (welcomePanel.classList.contains('shifted')) {
+            heading.textContent = 'Welcome!';
+            paragraph.textContent = 'Enter your personal details and start your journey with us!';
+            button.textContent = 'Sign Up';
+        } else {
+            heading.textContent = 'Welcome Back!';
+            paragraph.textContent = 'To keep connected with us please login with your personal info.';
+            button.textContent = 'Log In';
+        }
+    }
+
+    function registerUser(event) {
+        // Handles user registration:
+        // 1. Validates form inputs (e.g., TRN format, age, unique TRN).
+        // 2. Stores new user data in localStorage.
+        // 3. Redirects to the product page on successful registration.
+
+        event.preventDefault(); // Prevents default form submission behavior.
+
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const email = document.getElementById("email").value;
+        const gender = document.querySelector("input[name='gender']:checked").value;
+        const dob = document.getElementById("dob").value;
+        const trn = document.getElementById("trn").value;
+        const phone = document.getElementById("phone").value;
+        const password = document.getElementById("password").value;
+
+        const birthDate = new Date(dob);
+        const age = new Date().getFullYear() - birthDate.getFullYear();
+        if (age < 18) {
+            alert("You must be at least 18 years old to register.");
+            return;
+        }
+
+        if (!/^\d{3}-\d{3}-\d{3}$/.test(trn)) {
+            alert("TRN must be in the format 000-000-000.");
+            return;
+        }
+
+        let users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+        if (users.some(user => user.trn === trn)) {
+            alert("TRN already exists. Please use a unique TRN.");
+            return;
+        }
+
+        const newUser = {
+            firstName,
+            lastName,
+            email,
+            gender,
+            dob,
+            trn,
+            phone,
+            password,
+            dateOfRegistration: new Date().toLocaleDateString(),
+            cart: {},
+            invoices: [],
+            failedAttempts: 0 // Add initial failedAttempts for new users
+        };
+
+        users.push(newUser);
+        localStorage.setItem("RegistrationData", JSON.stringify(users));
+        alert("Registration successful!");
+
+        window.location.href = "product.html";
+    }
+
+    function loginUser(event) { 
+        // Handles user login:
+        // 1. Validates TRN format and user existence.
+        // 2. Checks password and failed attempts.
+        // 3. Redirects to the product page on success or error page after 3 failed attempts.
+        
+        event.preventDefault();
+
+        const trn = document.getElementById("loginTRN").value;
+        const password = document.getElementById("loginPassword").value;
+
+        // Validate TRN format
+        if (!/^\d{3}-\d{3}-\d{3}$/.test(trn)) {
+            alert("Please enter a valid TRN in the format 000-000-000");
+            return;
+        }
+
+        // Get users from localStorage
+        const users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+
+        // Find user with matching TRN
+        const user = users.find(user => user.trn === trn);
+
+        if (!user) {
+            alert("No account found with this TRN. Please register first.");
+            return;
+        }
+
+        // Initialize failed attempts if not already initialized
+        user.failedAttempts = user.failedAttempts || 0;
+
+        // If the user has exceeded 3 failed attempts, reset and redirect to the error page
+        if (user.failedAttempts >= 3) {
+            alert("Too many failed login attempts. Redirecting to the error page.");
+            resetFailedAttempts(users);  // Reset all failed attempts
+            localStorage.setItem("RegistrationData", JSON.stringify(users)); // Save back to localStorage
+            window.location.href = "error.html"; // Redirect to error page
+            return;
+        }
+
+        // Check password
+        if (user.password === password) {
+            // Store logged-in user info in session storage
+            sessionStorage.setItem("currentUser", JSON.stringify({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                trn: user.trn,
+                email: user.email
+            }));
+
+            alert("Login successful!");
+
+            // Reset failed attempts on successful login
+            user.failedAttempts = 0; // Reset the failed attempts counter
+            localStorage.setItem("RegistrationData", JSON.stringify(users)); // Save back to localStorage
+
+            // Redirect to the product page
+            window.location.href = "product.html"; // Redirect to product page
+        } else {
+            // Increment failed attempts and update in localStorage
+            user.failedAttempts++;
+            localStorage.setItem("RegistrationData", JSON.stringify(users));
+
+            // Alert the user about the failed attempt and show remaining attempts
+            alert(`Incorrect password. You have ${3 - user.failedAttempts} attempt(s) left.`);
+
+            // If failed attempts reach 3, redirect to error page
+            if (user.failedAttempts >= 3) {
+                alert("Too many failed login attempts. Redirecting to the error page.");
+                resetFailedAttempts(users);  // Reset all failed attempts
+                localStorage.setItem("RegistrationData", JSON.stringify(users)); // Save back to localStorage
+                window.location.href = "error.html"; // Redirect to error page
+            }
+        }
+    }
+
+    // Function to reset failed attempts for all users
+    function resetFailedAttempts(users) {
+        users.forEach(user => {
+            user.failedAttempts = 0;  // Reset failed attempts to 0 for all users
+        });
+    }
+
+    // Updated password reset function
+    function resetPassword() {
+        const trn = prompt("Please enter your TRN to reset password:");
+
+        if (!trn) return; // User canceled
+
+        if (!/^\d{3}-\d{3}-\d{3}$/.test(trn)) {
+            alert("Please enter a valid TRN in the format 000-000-000");
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem("RegistrationData")) || [];
+        const userIndex = users.findIndex(user => user.trn === trn);
+
+        if (userIndex === -1) {
+            alert("No account found with this TRN.");
+            return;
+        }
+
+        const newPassword = prompt("Enter new password (minimum 8 characters):");
+
+        if (!newPassword || newPassword.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return;
+        }
+
+        // Update user's password
+        users[userIndex].password = newPassword;
+        localStorage.setItem("RegistrationData", JSON.stringify(users));
+
+        alert("Password has been reset successfully. Please login with your new password.");
+    }
+
+    // Handle registration form submission
+    document.getElementById("registrationForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert("Registration successful!");
+    });
+
+    // Handle login form submission
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert("Login successful!");
+    });
+    </script>
+</body>
+</html>
